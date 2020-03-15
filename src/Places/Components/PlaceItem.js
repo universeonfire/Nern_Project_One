@@ -10,9 +10,16 @@ import "../Styles/PlaceItem.css"
 const PlaceItem = props => {
 	const [showMap, setShowMap] = useState(false)
 
+	const [showConfirmModal ,setShowConfirmModal] =   useState(false)
+
 	const openMap = () => setShowMap(true)
 	 
 	const closeMap = () => setShowMap(false)
+
+	const showDeleteWarningHandler = () => setShowConfirmModal(true)
+
+	const closeDeleteWarningHandler = () => setShowConfirmModal(false)
+
 	return(
 		<React.Fragment>
 		<Modal 
@@ -27,6 +34,18 @@ const PlaceItem = props => {
 				<Map/>
 			</div>
 		</Modal>
+		<Modal 
+			show={showConfirmModal} 
+			onCancel={closeDeleteWarningHandler} 
+			header= "Are you sure?" 
+			footerClass="place-item__modal-actions"
+		>
+			<React.Fragment>
+				<p>Deleted datas can not be reversed!!</p>
+				<Button inverse onClick={closeDeleteWarningHandler}> Cancel </Button>
+				<Button danger> Delete </Button>
+			</React.Fragment>
+		</Modal>
 		<li className="place-item">
 			<Card className="place-item__content">
 				<div className = "place-item__image">
@@ -40,7 +59,7 @@ const PlaceItem = props => {
 				<div className="place-item__actions">
 					<Button inverse onClick={openMap}> View on map</Button>
 					<Button to={`/places/${props.id}`}> Edit </Button>
-					<Button danger> Delete </Button>
+					<Button danger onClick={showDeleteWarningHandler}> Delete </Button>
 				</div>
 			</Card>
 		</li>	
