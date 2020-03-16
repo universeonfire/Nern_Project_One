@@ -12,16 +12,16 @@ const inputReducer = (state,action) =>{
 				value: action.val,
 				isValid: validate(action.val, action.validators)
 			}
-			break;
+			 
 		case "TOUCH":
 			return {
 				...state,  
 				isTouched:true
 			}
-			break;	
+			 
 		default:
 			return state
-			break;
+			 
 	}
 }
 
