@@ -1,5 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import axios from "axios";
 
 import Input from '../../Shared/Components/FormElements/Input';
 import Button from '../../Shared/Components/FormElements/Button';
@@ -16,23 +17,15 @@ import "../Styles/Auth.css";
 const Signup = () => {
     const [formState,inputHandler] = useForm(
         {
-            firstName:{
+            name:{
                 value:"",
                 isValid:false
             },
-            lastName:{
-                value:"",
-                isValid:false
-            },
-            mail:{
+            email:{
                 value:"",
                 isValid:false
             },
             password:{
-                value:"",
-                isValid:false
-            },
-            passwordConfirmation:{
                 value:"",
                 isValid:false
             }
@@ -40,9 +33,19 @@ const Signup = () => {
         },false
     )
 
-    const onSubmitHandler = (event) =>{
+    const onSubmitHandler = async (event) =>{
         event.preventDefault()
-        console.log(formState.inputs)
+         
+        const user = {
+            name : formState.inputs.name,
+            email: formState.inputs.email,
+            password: formState.inputs.password
+        };
+
+        await axios.post("http://localhost:5000/api/users/signup",{user}).then(res => {
+                console.log(res);
+        });
+        
     }
     const onCheck = (event) =>{
         event.preventDefault()
@@ -52,25 +55,17 @@ const Signup = () => {
     return(
         <form className="auth-form" onSubmit={onSubmitHandler}>
             <Input
-                id="firstName"
+                id="name"
                 element="input"
                 type="text"
-                label="First Name"
+                label="User Name"
                 validators={[VALIDATOR_REQUIRE()]}
                 onInput={inputHandler}
                 errorText="Please enter a valid first name."
             />
+             
             <Input
-                id="lastName"
-                element="input"
-                type="text"
-                label="Last Name"
-                validators={[VALIDATOR_REQUIRE()]}
-                onInput={inputHandler}
-                errorText="Please enter a valid last name."
-            />
-            <Input
-                id="mail"
+                id="email"
                 element="input"
                 type="text"
                 label="Mail address"
@@ -87,15 +82,7 @@ const Signup = () => {
                 onInput={inputHandler}
                 errorText="Please enter a valid password (at least 8 characters)."
             />
-            <Input
-                id="passwordConfirmation"
-                element="input"
-                type="password"
-                label="Password Confirmation"
-                validators={[VALIDATOR_PASSCONF(formState.inputs.password)]}
-                onInput={inputHandler}
-                errorText="Please enter same password to confirm."
-            />
+            
              
             <Button type="submit" disabled={!formState.isValid}>Sign Up</Button>
             <Link to={`/auth`}><Button inverted  >Sign In</Button></Link>

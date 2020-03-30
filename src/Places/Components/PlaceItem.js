@@ -1,14 +1,21 @@
 import React, {useState, useContext} from "react"
+import {useHistory} from "react-router-dom";
+import axios from "axios";
 
 import Card from '../../Shared/Components/UIElements/Card';
 import Modal from '../../Shared/Components/UIElements/Modal';
 import Map from '../../Shared/Components/UIElements/Map';
 import Button from '../../Shared/Components/FormElements/Button';
 import { AuthContext } from '../../Shared/Context/Auth-Context';
+import ErrorModal from '../../Shared/Components/UIElements/ErrorModal';
+import LoadingSpinner from '../../Shared/Components/UIElements/LoadingSpinner';
 
 import "../Styles/PlaceItem.css"
 
 const PlaceItem = props => {
+	const history = useHistory();
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState(null);
 	const authContext = useContext(AuthContext);
 	
 	const [showMap, setShowMap] = useState(false)
@@ -23,8 +30,25 @@ const PlaceItem = props => {
 
 	const closeDeleteWarningHandler = () => setShowConfirmModal(false)
 
+	const deletePlaceHandler = async event =>{
+		setShowConfirmModal(false)
+		setIsLoading(true);
+		await axios.delete(`http://localhost:5000/api/places/${props.id}`).then(res=>{
+			setIsLoading(false);
+			props.onDelete(props.id);
+		}).catch(error=>{
+			setIsLoading(false);
+			setError(error.message);
+		})
+	}
+
+	const errorHandler = () => {
+		setError(null);
+	}; 
+
 	return(
 		<React.Fragment>
+		<ErrorModal error={error} onClear={errorHandler} />	
 		<Modal 
 			show={showMap} 
 			onCancel={closeMap} 
@@ -46,11 +70,12 @@ const PlaceItem = props => {
 			<React.Fragment>
 				<p>Deleted datas can not be reversed!!</p>
 				<Button inverse onClick={closeDeleteWarningHandler}> Cancel </Button>
-				<Button danger> Delete </Button>
+				<Button danger onClick={deletePlaceHandler}> Delete </Button>
 			</React.Fragment>
 		</Modal>
 		<li className="place-item">
 			<Card className="place-item__content">
+				{isLoading && <LoadingSpinner asOverlay />} 
 				<div className = "place-item__image">
 					<img src={props.image} alt = {props.title} />
 				</div>
@@ -61,10 +86,10 @@ const PlaceItem = props => {
 				</div>
 				<div className="place-item__actions">
 					<Button inverse onClick={openMap}> View on map</Button>
-					{authContext.isLoggedIn &&
+					{authContext.isLoggedIn && authContext.userId === props.creatorId &&
 					<Button to={`/places/${props.id}`}> Edit </Button>
 					}
-					{authContext.isLoggedIn &&
+					{authContext.isLoggedIn && authContext.userId === props.creatorId &&
 					<Button danger onClick={showDeleteWarningHandler}> Delete </Button>
 					}					
 				</div>

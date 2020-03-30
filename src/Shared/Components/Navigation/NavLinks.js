@@ -15,7 +15,7 @@ const NavLinks = props => {
 			</li>
 			{authContext.isLoggedIn &&
 			<li>
-				<NavLink to = "/u1/places" exact> My Places </NavLink>
+				<NavLink to = {`/${authContext.userId}/places`} exact> My Places </NavLink>
 			</li>
 			}
 			{authContext.isLoggedIn &&

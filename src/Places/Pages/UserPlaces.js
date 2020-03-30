@@ -1,38 +1,51 @@
-import React from "react"
+import React,{useState, useEffect} from "react"
+import axios from "axios"
 import {useParams} from "react-router-dom"
+
+import ErrorModal from '../../Shared/Components/UIElements/ErrorModal';
+import LoadingSpinner from '../../Shared/Components/UIElements/LoadingSpinner';
 
 import PlaceList from "../Components/PlaceList"
 
-const PLACES = [
-			{
-				id:"p1",
-				imageUrl:"https://thenypost.files.wordpress.com/2019/05/cre-times-square-1.jpg?quality=90&strip=all&w=978&h=652&crop=1",
-				description:"crowded place heart of NY",
-				address:"Manhattan, NY 10036, USA",
-				creator:"u1",
-				location:{
-					lat: 40.7579747,
-					lng: -73.9877313
-				}
-			},
-			{
-				id:"p2",
-				imageUrl:"https://thenypost.files.wordpress.com/2019/05/cre-times-square-1.jpg?quality=90&strip=all&w=978&h=652&crop=1",
-				description:"crowded place heart of NY",
-				address:"Manhattan, NY 10036, USA",
-				creator:"u2",
-				location:{
-					lat: 40.7579747,
-					lng: -73.9877313
-				}
-			}
 
-		]
 const UserPlaces = props => {
+	const [userPlaces, setUserPlaces] = useState([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState(null);
 	const userId = useParams().userId
-	const loadedPlaces = PLACES.filter(place=>place.creator === userId)
+	
+	useEffect(() => {
+		const fetchUserPlaces = async () =>{
+			setIsLoading(true);
+			await axios.get(`http://localhost:5000/api/places/user/${userId}`).then(res=>{
+				setUserPlaces(res.data.places);
+				setIsLoading(false);
+			}).catch(error=>{
+			setIsLoading(false);
+			setError( error.message);
+		  });	
+		};
+		fetchUserPlaces(); 
+	}, [userId]);
+
+	const placeDeleteHandler = (placeId) => {
+		setUserPlaces(prevPlaces => prevPlaces.filter(place=>place.id !== placeId));
+	};
+
+	const errorHandler = () => {
+		setError(null);
+	}; 
+
 	return(
-		<PlaceList items={loadedPlaces} />
+		<React.Fragment>
+			<ErrorModal error={error} onClear={errorHandler} />
+			{isLoading && (
+				<div className="center">
+				<LoadingSpinner />
+				</div>
+			)}  
+			{!isLoading && userPlaces && <PlaceList items={userPlaces} onPlaceDelete={placeDeleteHandler} />}
+		</React.Fragment>
 	)
 
 }

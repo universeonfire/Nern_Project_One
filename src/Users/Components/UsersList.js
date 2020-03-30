@@ -6,6 +6,7 @@ import Card from '../../Shared/Components/UIElements/Card';
 import '../Styles/UsersList.css';
 
 const UsersList = props => {
+  
   if (props.items.length === 0) {
     return (
       <div className="center">
@@ -20,8 +21,8 @@ const UsersList = props => {
     <ul className="users-list">
       {props.items.map(user => (
         <UserItem
-          key={user.id}
-          id={user.id}
+          key={user._id}
+          id={user._id}
           image={user.image}
           name={user.name}
           placeCount={user.places}
@@ -29,6 +30,8 @@ const UsersList = props => {
       ))}
     </ul>
   );
+   
+   
 };
 
 export default UsersList;
